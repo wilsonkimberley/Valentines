@@ -7,27 +7,14 @@
 <style>
 body {
     margin: 0;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background: linear-gradient(180deg, #fff5f6, #ffd6db);
     color: #b3001b;
     text-align: center;
 }
 
-/* floating hearts */
-.background-heart {
-    position: fixed;
-    font-size: 35px;
-    color: rgba(179, 0, 27, 0.08);
-    animation: floatUp 12s linear infinite;
-}
-
-@keyframes floatUp {
-    from { transform: translateY(100vh); }
-    to { transform: translateY(-10vh); }
-}
-
 .container {
-    margin-top: 80px;
+    margin-top: 60px;
 }
 
 .big-heart {
@@ -43,7 +30,7 @@ body {
 }
 
 button {
-    padding: 10px 30px;
+    padding: 10px 25px;
     border-radius: 25px;
     border: 2px solid #e60026;
     background: white;
@@ -69,7 +56,7 @@ button:hover {
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(13, 35px);
+    grid-template-columns: repeat(15, 35px);
     gap: 2px;
     justify-content: center;
     margin-top: 20px;
@@ -78,17 +65,15 @@ button:hover {
 .cell {
     width: 35px;
     height: 35px;
-}
-
-input.cell {
-    text-transform: uppercase;
     text-align: center;
     font-size: 18px;
     border: 1px solid #e60026;
+    text-transform: uppercase;
 }
 
 .block {
     background: #b3001b;
+    border: none;
 }
 
 .correct {
@@ -96,29 +81,16 @@ input.cell {
 }
 
 .clues {
-    max-width: 500px;
+    max-width: 600px;
     margin: 30px auto;
     text-align: left;
     color: #800014;
 }
-
 </style>
 </head>
 <body>
 
-<script>
-for(let i=0;i<20;i++){
-    const h=document.createElement("div");
-    h.className="background-heart";
-    h.innerHTML="♡";
-    h.style.left=Math.random()*100+"vw";
-    h.style.animationDuration=(Math.random()*10+10)+"s";
-    document.body.appendChild(h);
-}
-</script>
-
 <div class="container">
-
 <div class="big-heart">♥</div>
 <h1>Brandon</h1>
 <h2>Will you be my Valentine?</h2>
@@ -127,76 +99,84 @@ for(let i=0;i<20;i++){
 <button id="noBtn">NO</button>
 
 <div id="loveMessage">
-    I choose you. Always. ♥<br>
-    — Kimberley
+I choose you. Always. ♥<br>
+— Kimberley
 </div>
 
 <div id="crossword">
-    <h2>Crossword Champion Mode</h2>
+<h2>Crossword Champion Mode</h2>
+<div class="grid" id="grid"></div>
 
-    <div class="grid" id="grid"></div>
+<div class="clues">
+<strong>Across</strong><br>
+1. First holiday together (9)<br>
+5. Who said I love you first (7)<br>
+7. Word that describes us (4)<br>
+8. What we choose (9)<br><br>
 
-    <div class="clues">
-        <strong>Across</strong><br>
-        1. First holiday together (9)<br>
-        5. Who said I love you first (7)<br>
-        7. Word that describes us (4)<br>
-        8. What we choose (9)<br><br>
-
-        <strong>Down</strong><br>
-        2. What I call you (4)<br>
-        3. First kiss location (6)<br>
-        4. Special date (12)<br>
-        6. My favourite thing about you (9)
-    </div>
-
-    <button onclick="checkCrossword()">Check Answers</button>
-    <p id="result"></p>
+<strong>Down</strong><br>
+2. What I call you (4)<br>
+3. First kiss location (6)<br>
+4. Special date (12)<br>
+6. My favourite thing about you (9)
 </div>
 
+<button onclick="checkCrossword()">Check</button>
+<p id="result"></p>
+</div>
 </div>
 
 <script>
-const answers = {
-    1:"TENERIFE",
-    2:"BABE",
-    3:"SHOWER",
-    4:"TENITHIRTEEN",
-    5:"BRANDON",
-    6:"YOURBOOTY",
-    7:"SLAY",
-    8:"EACHOTHER"
-};
 
-/* simplified grid layout */
-const layout = [
-"TENERIFE###",
-"B###A###S##",
-"R###B###H##",
-"A###E###O##",
-"N########W#",
-"D######SLAY",
-"O########E#",
-"N###EACHOTHER"
+const words = [
+{ word:"TENERIFE", row:0, col:3, dir:"across" },
+{ word:"BRANDON", row:2, col:0, dir:"across" },
+{ word:"SLAY", row:4, col:5, dir:"across" },
+{ word:"EACHOTHER", row:6, col:3, dir:"across" },
+
+{ word:"BABE", row:0, col:5, dir:"down" },
+{ word:"SHOWER", row:0, col:7, dir:"down" },
+{ word:"TENITHIRTEEN", row:0, col:9, dir:"down" },
+{ word:"YOURBOOTY", row:0, col:11, dir:"down" }
 ];
 
-const grid=document.getElementById("grid");
+const gridSize = 15;
+const gridElement = document.getElementById("grid");
+const solution = [];
 
-layout.forEach(row=>{
-    row.split("").forEach(letter=>{
-        if(letter==="#"){
+for(let r=0;r<gridSize;r++){
+    solution[r]=[];
+    for(let c=0;c<gridSize;c++){
+        solution[r][c]="";
+    }
+}
+
+words.forEach(entry=>{
+    for(let i=0;i<entry.word.length;i++){
+        if(entry.dir==="across"){
+            solution[entry.row][entry.col+i]=entry.word[i];
+        } else {
+            solution[entry.row+i][entry.col]=entry.word[i];
+        }
+    }
+});
+
+for(let r=0;r<gridSize;r++){
+    for(let c=0;c<gridSize;c++){
+        if(solution[r][c]===""){
             const block=document.createElement("div");
-            block.className="cell block";
-            grid.appendChild(block);
+            block.className="block";
+            gridElement.appendChild(block);
         } else {
             const input=document.createElement("input");
             input.maxLength=1;
             input.className="cell";
-            input.dataset.letter=letter;
-            grid.appendChild(input);
+            input.dataset.row=r;
+            input.dataset.col=c;
+            gridElement.appendChild(input);
         }
-    });
-});
+    }
+}
 
 document.addEventListener("mousemove",(e)=>{
     const rect=noBtn.getBoundingClientRect();
@@ -217,22 +197,26 @@ yesBtn.addEventListener("click",()=>{
 });
 
 function checkCrossword(){
-    const cells=document.querySelectorAll("input.cell");
+    const cells=document.querySelectorAll(".cell");
     let correct=0;
+
     cells.forEach(cell=>{
-        if(cell.value.toUpperCase()===cell.dataset.letter){
+        const r=cell.dataset.row;
+        const c=cell.dataset.col;
+        if(cell.value.toUpperCase()===solution[r][c]){
             cell.classList.add("correct");
             correct++;
         } else {
             cell.classList.remove("correct");
         }
     });
+
     const result=document.getElementById("result");
     if(correct===cells.length){
-        result.innerHTML="Champion. But I still win. ♥";
+        result.innerHTML="Crossword Champion. I still win though. ♥";
         result.style.color="green";
     } else {
-        result.innerHTML="Not good enough. Try again.";
+        result.innerHTML="Not competitive enough. Try again.";
         result.style.color="#b3001b";
     }
 }
