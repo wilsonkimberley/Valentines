@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>For Brandon</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(180deg, #fff5f6, #ffd6db);
+    color: #b3001b;
+    text-align: center;
+}
+
+/* floating hearts */
+.background-heart {
+    position: fixed;
+    font-size: 35px;
+    color: rgba(179, 0, 27, 0.08);
+    animation: floatUp 12s linear infinite;
+}
+
+@keyframes floatUp {
+    from { transform: translateY(100vh); }
+    to { transform: translateY(-10vh); }
+}
+
+.container {
+    margin-top: 80px;
+}
+
+.big-heart {
+    font-size: 70px;
+    color: #e60026;
+    animation: pulse 1.6s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+button {
+    padding: 10px 30px;
+    border-radius: 25px;
+    border: 2px solid #e60026;
+    background: white;
+    color: #e60026;
+    cursor: pointer;
+    margin: 10px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #e60026;
+    color: white;
+}
+
+#noBtn {
+    position: absolute;
+}
+
+#loveMessage, #crossword {
+    display: none;
+    margin-top: 40px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(13, 35px);
+    gap: 2px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.cell {
+    width: 35px;
+    height: 35px;
+}
+
+input.cell {
+    text-transform: uppercase;
+    text-align: center;
+    font-size: 18px;
+    border: 1px solid #e60026;
+}
+
+.block {
+    background: #b3001b;
+}
+
+.correct {
+    background: #c6f7d0;
+}
+
+.clues {
+    max-width: 500px;
+    margin: 30px auto;
+    text-align: left;
+    color: #800014;
+}
+
+</style>
+</head>
+<body>
+
+<script>
+for(let i=0;i<20;i++){
+    const h=document.createElement("div");
+    h.className="background-heart";
+    h.innerHTML="♡";
+    h.style.left=Math.random()*100+"vw";
+    h.style.animationDuration=(Math.random()*10+10)+"s";
+    document.body.appendChild(h);
+}
+</script>
+
+<div class="container">
+
+<div class="big-heart">♥</div>
+<h1>Brandon</h1>
+<h2>Will you be my Valentine?</h2>
+
+<button id="yesBtn">YES</button>
+<button id="noBtn">NO</button>
+
+<div id="loveMessage">
+    I choose you. Always. ♥<br>
+    — Kimberley
+</div>
+
+<div id="crossword">
+    <h2>Crossword Champion Mode</h2>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="clues">
+        <strong>Across</strong><br>
+        1. First holiday together (9)<br>
+        5. Who said I love you first (7)<br>
+        7. Word that describes us (4)<br>
+        8. What we choose (9)<br><br>
+
+        <strong>Down</strong><br>
+        2. What I call you (4)<br>
+        3. First kiss location (6)<br>
+        4. Special date (12)<br>
+        6. My favourite thing about you (9)
+    </div>
+
+    <button onclick="checkCrossword()">Check Answers</button>
+    <p id="result"></p>
+</div>
+
+</div>
+
+<script>
+const answers = {
+    1:"TENERIFE",
+    2:"BABE",
+    3:"SHOWER",
+    4:"TENITHIRTEEN",
+    5:"BRANDON",
+    6:"YOURBOOTY",
+    7:"SLAY",
+    8:"EACHOTHER"
+};
+
+/* simplified grid layout */
+const layout = [
+"TENERIFE###",
+"B###A###S##",
+"R###B###H##",
+"A###E###O##",
+"N########W#",
+"D######SLAY",
+"O########E#",
+"N###EACHOTHER"
+];
+
+const grid=document.getElementById("grid");
+
+layout.forEach(row=>{
+    row.split("").forEach(letter=>{
+        if(letter==="#"){
+            const block=document.createElement("div");
+            block.className="cell block";
+            grid.appendChild(block);
+        } else {
+            const input=document.createElement("input");
+            input.maxLength=1;
+            input.className="cell";
+            input.dataset.letter=letter;
+            grid.appendChild(input);
+        }
+    });
+});
+
+document.addEventListener("mousemove",(e)=>{
+    const rect=noBtn.getBoundingClientRect();
+    const dx=e.clientX-(rect.left+rect.width/2);
+    const dy=e.clientY-(rect.top+rect.height/2);
+    const distance=Math.sqrt(dx*dx+dy*dy);
+    if(distance<120){
+        noBtn.style.left=(-dx/distance*60)+"px";
+        noBtn.style.top=(-dy/distance*60)+"px";
+    }
+});
+
+yesBtn.addEventListener("click",()=>{
+    loveMessage.style.display="block";
+    crossword.style.display="block";
+    yesBtn.style.display="none";
+    noBtn.style.display="none";
+});
+
+function checkCrossword(){
+    const cells=document.querySelectorAll("input.cell");
+    let correct=0;
+    cells.forEach(cell=>{
+        if(cell.value.toUpperCase()===cell.dataset.letter){
+            cell.classList.add("correct");
+            correct++;
+        } else {
+            cell.classList.remove("correct");
+        }
+    });
+    const result=document.getElementById("result");
+    if(correct===cells.length){
+        result.innerHTML="Champion. But I still win. ♥";
+        result.style.color="green";
+    } else {
+        result.innerHTML="Not good enough. Try again.";
+        result.style.color="#b3001b";
+    }
+}
+</script>
+
+</body>
+</html>
